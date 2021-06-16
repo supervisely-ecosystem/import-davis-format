@@ -13,18 +13,24 @@ from PIL import Image
 import numpy as np
 
 
+
 my_app = sly.AppService()
 TEAM_ID = int(os.environ['context.teamId'])
 WORKSPACE_ID = int(os.environ['context.workspaceId'])
 INPUT_DIR = os.environ.get("modal.state.slyFolder")
 INPUT_FILE = os.environ.get("modal.state.slyFile")
-PROJECT_NAME = 'DAVIS'
+PROJECT_NAME = 'DAVIS2017'
+EXTARACT_DIR_NAME = 'DAVIS'
 logger = sly.logger
 #archive_ext = '.zip'
 frame_rate = 5
 video_ext = '.mp4'
 train_tag = 'train'
 val_tag = 'val'
+NECESSARY_ITEMS = ['JPEGImages', 'ImageSets', 'davis_semantics.json']
+POSSIBLE_ITEMS = ['Annotations_unsupervised', 'Annotations']
+POSSIBLE_SUBDIRS = ['480p', 'Full-Resolution']
+SETS_YEAR = '2017'
 
 # test = Image.open('/home/andrew/alex_work/app_data/data/davis_data/00000.png')
 # colors = test.getcolors()
@@ -32,6 +38,13 @@ val_tag = 'val'
 # a = np.asarray(test)
 # rgb = test.convert('RGB').getcolors()
 # a=0
+
+def check_input_data(working_dir):
+    all_items = os.listdir(working_dir)
+    necessary_itm = set(NECESSARY_ITEMS) - set(all_items)
+    if len(necessary_itm) != 0:
+        logger.warn('There is no {} items in input data, but it must be'.format(necessary_itm))
+        my_app.stop()
 
 
 @my_app.callback("import_davis")
@@ -62,10 +75,85 @@ def import_davis(api: sly.Api, task_id, context, state, app_logger):
     #     raise Exception("No such file".format(INPUT_FILE))
 
 
-    for curr_arch in os.listdir(input_dir):
-        pass
+    # for curr_arch_name in os.listdir(input_dir):
+    #     curr_arch_path = os.path.join(input_dir, curr_arch_name)
+    #     if zipfile.is_zipfile(curr_arch_path):
+    #         with zipfile.ZipFile(curr_arch_path, 'r') as archive:
+    #             archive.extractall(input_dir)
+    #     else:
+    #         logger.warn('Instance {} is not zip archive, it will be skipped'.format(curr_arch_name))  #TODO test it!!!
+    #         continue
 
-    a=0
+
+    working_dir = os.path.join(input_dir, EXTARACT_DIR_NAME)
+
+    check_input_data(working_dir)  #TODO test it!!!
+
+    if sly.fs.dir_exists(os.path.join(working_dir, POSSIBLE_ITEMS[0])):
+        annotations_path = os.path.join(working_dir, POSSIBLE_ITEMS[0])
+    elif sly.fs.dir_exists(os.path.join(working_dir, POSSIBLE_ITEMS[1])):
+        annotations_path = os.path.join(working_dir, POSSIBLE_ITEMS[1])
+    else:
+        logger.warn(
+            'There is no {} or {} folder in input data, but it must be.'.format(POSSIBLE_ITEMS[0], POSSIBLE_ITEMS[1]))
+        my_app.stop()
+
+    images_path = os.path.join(working_dir, NECESSARY_ITEMS[0])
+    if sly.fs.dir_exists(os.path.join(images_path, POSSIBLE_SUBDIRS[0])):
+        imgs_path = os.path.join(images_path, POSSIBLE_SUBDIRS[0])
+    elif sly.fs.dir_exists(os.path.join(images_path, POSSIBLE_SUBDIRS[1])):
+        imgs_path = os.path.join(images_path, POSSIBLE_SUBDIRS[1])
+    else:
+        logger.warn(
+            'There is no {} or {} folder in input images data, but it must be.'.format(POSSIBLE_SUBDIRS[0],
+                                                                                            POSSIBLE_SUBDIRS[1]))
+
+    sets_path = os.path.join(working_dir, NECESSARY_ITEMS[1])
+    semantics_path = os.path.join(working_dir, NECESSARY_ITEMS[2])
+    semantics_json = sly.json.load_json_file(semantics_path)
+
+    if sly.fs.dir_exists(os.path.join(annotations_path, POSSIBLE_SUBDIRS[0])):
+        anns_dir = os.path.join(annotations_path, POSSIBLE_SUBDIRS[0])
+    elif sly.fs.dir_exists(os.path.join(annotations_path, POSSIBLE_SUBDIRS[0])):
+        anns_dir = os.path.join(annotations_path, POSSIBLE_SUBDIRS[1])
+    else:
+        logger.warn(
+            'There is no {} or {} folder in input annotations data, but it must be.'.format(POSSIBLE_SUBDIRS[0],
+                                                                                            POSSIBLE_SUBDIRS[1]))
+        my_app.stop()
+
+    if sly.fs.dir_exists(os.path.join(sets_path, SETS_YEAR)):
+        train_val_path = os.path.join(sets_path, SETS_YEAR)
+    else:
+        logger.warn('There is no {} folder in input data, but it must be'.format(os.path.join(NECESSARY_ITEMS[1], SETS_YEAR)))
+        my_app.stop()
+
+    train_val_names = defaultdict(list)
+
+    for curr_file in os.listdir(train_val_path):
+        curr_file_path = os.path.join(train_val_path, curr_file)
+        curr_file_name = sly.fs.get_file_name(curr_file_path)
+        if curr_file_name not in [train_tag, val_tag]:
+            logger.warn('File {} not train.txt or val.txt, it will be skip.'.format(curr_file_name))
+            continue
+        with open(curr_file_path, "r") as file:
+            all_lines = file.readlines()
+            for line in all_lines:
+                line = line.split('\n')[0].split(' ')
+                train_val_names[curr_file_name].append(line[0])
+
+    for imgs_dir in os.listdir(imgs_path):
+        curr_imgs = os.path.join(imgs_path, imgs_dir)
+        curr_anns = os.path.join(anns_dir, imgs_dir)
+        if not sly.fs.dir_exists(curr_anns):
+            logger.warn('There is no annotations for {} folder'.format(curr_imgs))
+            continue
+        curr_semantic_classes = semantics_json[imgs_dir]
+        check_imgs_to_anns(curr_imgs, curr_anns)
+        a=0
+
+
+
 
     search_anns = os.path.join(input_dir, "annotations_*.json")
     anns_fine_paths = glob.glob(search_anns)
