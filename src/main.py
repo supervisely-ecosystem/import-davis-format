@@ -20,10 +20,11 @@ WORKSPACE_ID = int(os.environ['context.workspaceId'])
 INPUT_DIR = os.environ.get("modal.state.slyFolder")
 INPUT_FILE = os.environ.get("modal.state.slyFile")
 PROJECT_NAME = 'DAVIS2017'
+DATASET_NAME = 'ds'
 EXTARACT_DIR_NAME = 'DAVIS'
 logger = sly.logger
 #archive_ext = '.zip'
-frame_rate = 5
+frame_rate = 10
 video_ext = '.mp4'
 train_tag = 'train'
 val_tag = 'val'
@@ -31,6 +32,9 @@ NECESSARY_ITEMS = ['JPEGImages', 'ImageSets', 'davis_semantics.json']
 POSSIBLE_ITEMS = ['Annotations_unsupervised', 'Annotations']
 POSSIBLE_SUBDIRS = ['480p', 'Full-Resolution']
 SETS_YEAR = '2017'
+images_ext = '.jpg'
+anns_ext = '.png'
+first_image_name = '00000.jpg'
 
 # test = Image.open('/home/andrew/alex_work/app_data/data/davis_data/00000.png')
 # colors = test.getcolors()
@@ -45,6 +49,15 @@ def check_input_data(working_dir):
     if len(necessary_itm) != 0:
         logger.warn('There is no {} items in input data, but it must be'.format(necessary_itm))
         my_app.stop()
+
+
+def check_imgs_to_anns(img_paths, ann_paths, data_folder):
+    imgs = os.listdir(img_paths)
+    anns = os.listdir(ann_paths)
+    if len(imgs) != len(anns):
+        logger.warn('Number of images not equal to number of annotations in {} folder'.format(data_folder))
+        return None
+    return True
 
 
 @my_app.callback("import_davis")
@@ -142,15 +155,89 @@ def import_davis(api: sly.Api, task_id, context, state, app_logger):
                 line = line.split('\n')[0].split(' ')
                 train_val_names[curr_file_name].append(line[0])
 
+    #=====================================================================================================
+    new_project = api.project.create(WORKSPACE_ID, project_name, type=sly.ProjectType.VIDEOS,
+                                     change_name_if_conflict=True)
+
+    tag_meta_train = sly.TagMeta(train_tag, sly.TagValueType.NONE)
+    tag_meta_val = sly.TagMeta(val_tag, sly.TagValueType.NONE)
+    tag_collection = sly.TagMetaCollection([tag_meta_train, tag_meta_val])
+    meta = sly.ProjectMeta(tag_metas=tag_collection)
+    api.project.update_meta(new_project.id, meta.to_json())
+    new_dataset = api.dataset.create(new_project.id, sly.fs.get_file_name(DATASET_NAME), change_name_if_conflict=True)
+    # =====================================================================================================
+    obj_classes = {}
+
+
     for imgs_dir in os.listdir(imgs_path):
-        curr_imgs = os.path.join(imgs_path, imgs_dir)
-        curr_anns = os.path.join(anns_dir, imgs_dir)
-        if not sly.fs.dir_exists(curr_anns):
-            logger.warn('There is no annotations for {} folder'.format(curr_imgs))
+        curr_imgs_path = os.path.join(imgs_path, imgs_dir)
+        curr_anns_path = os.path.join(anns_dir, imgs_dir)
+        if not sly.fs.dir_exists(curr_anns_path):
+            logger.warn('There is no annotations for {} folder'.format(curr_imgs_path))
             continue
+
+        video_objects = {}
         curr_semantic_classes = semantics_json[imgs_dir]
-        check_imgs_to_anns(curr_imgs, curr_anns)
-        a=0
+        for id, obj_name in curr_semantic_classes.items():
+            obj_class = sly.ObjClass(obj_name, sly.Bitmap)
+            if obj_name not in obj_classes.keys():
+                obj_classes[obj_name] = obj_class
+            video_objects[id] = sly.VideoObject(obj_class)
+
+        if not check_imgs_to_anns(curr_imgs_path, curr_anns_path, imgs_dir):
+            continue
+
+        images = os.listdir(curr_imgs_path)
+        progress = sly.Progress('Create video', len(images), app_logger)
+        video_path = os.path.join(extract_dir, imgs_dir + video_ext)
+        img = cv2.imread(os.path.join(curr_imgs_path, first_image_name))
+        img_size = (img.shape[1], img.shape[0])
+        video = cv2.VideoWriter(video_path, cv2.VideoWriter_fourcc(*'MP4V'), frame_rate, img_size)
+
+        for idx in range(len(images)):
+            image_name = str(idx).zfill(5) + images_ext
+            curr_im_path = os.path.join(curr_imgs_path, image_name)
+            if not sly.fs.file_exists(curr_im_path):
+                logger.warn('There is no image with name {}, but it must be. Folder {} will be skip.'.format(image_name, imgs_dir)) #TODO make all imgs check in check_imgs_to_anns
+                break
+
+            curr_im = cv2.imread(curr_im_path)
+            if (curr_im.shape[1], curr_im.shape[0]) != img_size:
+                logger.warn(
+                    'Image {} shape not correspond to {} image shape in {} folder, this folder will be skip.'.format(
+                        image_name, first_image_name, imgs_dir))
+
+            ann_name = str(idx).zfill(5) + anns_ext
+            curr_ann_path = os.path.join(curr_anns_path, ann_name)
+            if not sly.fs.file_exists(curr_im_path):
+                logger.warn('There is no annotation with name {}, but it must be. Folder {} will be skip.'.format(ann_name, imgs_dir)) #TODO make all imgs check in check_imgs_to_anns
+                break
+
+            curr_ann = Image.open(curr_ann_path)
+            ann_objects = curr_ann.getcolors()
+            mask_all = np.asarray(curr_ann)
+            for ann_obj_idx in range(1, len(ann_objects)):
+                obj_id = ann_objects[ann_obj_idx][1]
+                mask = 
+                figure = sly.VideoFigure(video_objects[obj_id], mask, idx)
+
+
+
+
+            a=0
+
+
+
+            video.write(curr_im)
+        progress.iter_done_report()
+        video.release()
+
+        file_info = api.video.upload_paths(new_dataset.id, [imgs_dir], [video_path])
+
+
+
+        a = 0
+
 
 
 
