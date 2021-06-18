@@ -17,7 +17,7 @@ my_app = sly.AppService()
 TEAM_ID = int(os.environ['context.teamId'])
 WORKSPACE_ID = int(os.environ['context.workspaceId'])
 INPUT_DIR = os.environ.get("modal.state.slyFolder")
-INPUT_FILE = os.environ.get("modal.state.slyFile")
+#INPUT_FILE = os.environ.get("modal.state.slyFile")
 PROJECT_NAME = 'DAVIS2017'
 DATASET_NAME = 'ds'
 EXTARACT_DIR_NAME = 'DAVIS'
@@ -59,41 +59,39 @@ def import_davis(api: sly.Api, task_id, context, state, app_logger):
 
     storage_dir = my_app.data_dir
 
-    if INPUT_DIR:
-        cur_files_path = INPUT_DIR
-        extract_dir = os.path.join(storage_dir, str(Path(cur_files_path).parent).lstrip("/"))
-        input_dir = os.path.join(extract_dir, Path(cur_files_path).name)
-        archive_path = os.path.join(storage_dir, cur_files_path.split("/")[-2] + ".tar")
-        project_name = Path(cur_files_path).name
-    else:
-        cur_files_path = INPUT_FILE
-        extract_dir = os.path.join(storage_dir, get_file_name(cur_files_path))
-        archive_path = os.path.join(storage_dir, get_file_name_with_ext(cur_files_path))
-        project_name = get_file_name(INPUT_FILE)
-        input_dir = extract_dir
-
-    # api.file.download(TEAM_ID, cur_files_path, archive_path)
-    #
-    # if tarfile.is_tarfile(archive_path):
-    #     with tarfile.open(archive_path) as archive:
-    #         archive.extractall(extract_dir)
+    #if INPUT_DIR:
+    cur_files_path = INPUT_DIR
+    extract_dir = os.path.join(storage_dir, str(Path(cur_files_path).parent).lstrip("/"))
+    input_dir = os.path.join(extract_dir, Path(cur_files_path).name)
+    archive_path = os.path.join(storage_dir, cur_files_path.split("/")[-2] + ".tar")
+    project_name = Path(cur_files_path).name
     # else:
-    #     raise Exception("No such file".format(INPUT_FILE))
+    #     cur_files_path = INPUT_FILE
+    #     extract_dir = os.path.join(storage_dir, get_file_name(cur_files_path))
+    #     archive_path = os.path.join(storage_dir, get_file_name_with_ext(cur_files_path))
+    #     project_name = get_file_name(INPUT_FILE)
+    #     input_dir = extract_dir
 
+    api.file.download(TEAM_ID, cur_files_path, archive_path)
 
-    # for curr_arch_name in os.listdir(input_dir):
-    #     curr_arch_path = os.path.join(input_dir, curr_arch_name)
-    #     if zipfile.is_zipfile(curr_arch_path):
-    #         with zipfile.ZipFile(curr_arch_path, 'r') as archive:
-    #             archive.extractall(input_dir)
-    #     else:
-    #         logger.warn('Instance {} is not zip archive, it will be skipped'.format(curr_arch_name))  #TODO test it!!!
-    #         continue
+    if tarfile.is_tarfile(archive_path):
+        with tarfile.open(archive_path) as archive:
+            archive.extractall(extract_dir)
+    else:
+        raise Exception("No such file".format(archive_path))
 
+    for curr_arch_name in os.listdir(input_dir):
+        curr_arch_path = os.path.join(input_dir, curr_arch_name)
+        if zipfile.is_zipfile(curr_arch_path):
+            with zipfile.ZipFile(curr_arch_path, 'r') as archive:
+                archive.extractall(input_dir)
+        else:
+            logger.warn('Instance {} is not zip archive, it will be skipped'.format(curr_arch_name))
+            continue
 
     working_dir = os.path.join(input_dir, EXTARACT_DIR_NAME)
 
-    check_input_data(working_dir)  #TODO test it!!!
+    check_input_data(working_dir)
 
     if sly.fs.dir_exists(os.path.join(working_dir, POSSIBLE_ITEMS[0])):
         annotations_path = os.path.join(working_dir, POSSIBLE_ITEMS[0])
@@ -183,7 +181,7 @@ def import_davis(api: sly.Api, task_id, context, state, app_logger):
             continue
 
         images = os.listdir(curr_imgs_path)
-        progress = sly.Progress('Create video', len(images), app_logger)
+        progress = sly.Progress('Create video {}'.format(imgs_dir), len(images), app_logger)
         video_path = os.path.join(extract_dir, imgs_dir + video_ext)
         img = cv2.imread(os.path.join(curr_imgs_path, first_image_name))
         img_size = (img.shape[1], img.shape[0])
@@ -194,7 +192,7 @@ def import_davis(api: sly.Api, task_id, context, state, app_logger):
             image_name = str(idx).zfill(5) + images_ext
             curr_im_path = os.path.join(curr_imgs_path, image_name)
             if not sly.fs.file_exists(curr_im_path):
-                logger.warn('There is no image with name {}, but it must be. Folder {} will be skip.'.format(image_name, imgs_dir)) #TODO make all imgs check in check_imgs_to_anns
+                logger.warn('There is no image with name {}, but it must be. Folder {} will be skip.'.format(image_name, imgs_dir))
                 break
 
             curr_im = cv2.imread(curr_im_path)
@@ -206,7 +204,7 @@ def import_davis(api: sly.Api, task_id, context, state, app_logger):
             ann_name = str(idx).zfill(5) + anns_ext
             curr_ann_path = os.path.join(curr_anns_path, ann_name)
             if not sly.fs.file_exists(curr_im_path):
-                logger.warn('There is no annotation with name {}, but it must be. Folder {} will be skip.'.format(ann_name, imgs_dir)) #TODO make all imgs check in check_imgs_to_anns
+                logger.warn('There is no annotation with name {}, but it must be. Folder {} will be skip.'.format(ann_name, imgs_dir))
                 break
 
             curr_ann = Image.open(curr_ann_path)
