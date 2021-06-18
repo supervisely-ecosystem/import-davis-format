@@ -1,5 +1,6 @@
 <div align="center" markdown>
-<img src="https://i.imgur.com/48JFbtt.png" width="1900px"/>
+<img src="https://i.imgur.com/WJcTcJc.png" width="1900px"/>
+
 
 
 # Import DAVIS
@@ -30,7 +31,7 @@ Download `DAVIS` data from official `DAVIS` site([click here](https://davischall
 
 Upload your data in `DAVIS` format to `Team Files` (for example you can create `import_davis` folder).
 
-<img src="https://i.imgur.com/45uOaK0.png"/>
+<img src="https://i.imgur.com/tTHEHSd.png"/>
 
 ## How To Run 
 
@@ -38,14 +39,14 @@ Upload your data in `DAVIS` format to `Team Files` (for example you can create `
 
 **Step 2**: Go to `Current Team`->`Files` page, right-click on your `folder`, containing `davis` data and choose `Run App`->`Import Davis`. You will be redirected to `Workspace`->`Tasks` page. 
 
-<img src="https://i.imgur.com/dJr5sLz.png"/>
+<img src="https://i.imgur.com/vPIwW7S.png"/>
 
 ## How to use
 
 Resulting project will be placed to your current `Workspace` with the same name as the `davis` archive. Videos in datasets will have tags (`train`, `val`) corresponding to the data in `DAVIS-2017` archive.
 
-<img src="https://i.imgur.com/UC0ygAH.png"/>
+<img src="https://i.imgur.com/MMgT371.png"/>
 
 You can also access your project by clicking on it's name from `Tasks` page.
 
-<img src="https://i.imgur.com/h54uGur.png">
+<img src="https://i.imgur.com/gpsZ1uz.png">
