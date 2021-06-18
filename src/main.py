@@ -13,7 +13,6 @@ from PIL import Image
 import numpy as np
 
 
-
 my_app = sly.AppService()
 TEAM_ID = int(os.environ['context.teamId'])
 WORKSPACE_ID = int(os.environ['context.workspaceId'])
@@ -36,12 +35,6 @@ images_ext = '.jpg'
 anns_ext = '.png'
 first_image_name = '00000.jpg'
 
-# test = Image.open('/home/andrew/alex_work/app_data/data/davis_data/00000.png')
-# colors = test.getcolors()
-# palette = test.palette
-# a = np.asarray(test)
-# rgb = test.convert('RGB').getcolors()
-# a=0
 
 def check_input_data(working_dir):
     all_items = os.listdir(working_dir)
@@ -168,7 +161,6 @@ def import_davis(api: sly.Api, task_id, context, state, app_logger):
     # =====================================================================================================
     obj_classes = {}
 
-
     for imgs_dir in os.listdir(imgs_path):
         curr_imgs_path = os.path.join(imgs_path, imgs_dir)
         curr_anns_path = os.path.join(anns_dir, imgs_dir)
@@ -179,11 +171,14 @@ def import_davis(api: sly.Api, task_id, context, state, app_logger):
         video_objects = {}
         curr_semantic_classes = semantics_json[imgs_dir]
         for id, obj_name in curr_semantic_classes.items():
-            obj_class = sly.ObjClass(obj_name, sly.Bitmap)
             if obj_name not in obj_classes.keys():
+                obj_class = sly.ObjClass(obj_name, sly.Bitmap)
                 obj_classes[obj_name] = obj_class
-            video_objects[id] = sly.VideoObject(obj_class)
+            video_objects[int(id)] = sly.VideoObject(obj_classes[obj_name])
 
+        new_meta = sly.ProjectMeta(sly.ObjClassCollection(list(obj_classes.values())))
+        meta = meta.merge(new_meta)
+        api.project.update_meta(new_project.id, meta.to_json())
         if not check_imgs_to_anns(curr_imgs_path, curr_anns_path, imgs_dir):
             continue
 
@@ -194,6 +189,7 @@ def import_davis(api: sly.Api, task_id, context, state, app_logger):
         img_size = (img.shape[1], img.shape[0])
         video = cv2.VideoWriter(video_path, cv2.VideoWriter_fourcc(*'MP4V'), frame_rate, img_size)
 
+        frames = []
         for idx in range(len(images)):
             image_name = str(idx).zfill(5) + images_ext
             curr_im_path = os.path.join(curr_imgs_path, image_name)
@@ -216,153 +212,47 @@ def import_davis(api: sly.Api, task_id, context, state, app_logger):
             curr_ann = Image.open(curr_ann_path)
             ann_objects = curr_ann.getcolors()
             mask_all = np.asarray(curr_ann)
+            figures = []
             for ann_obj_idx in range(1, len(ann_objects)):
                 obj_id = ann_objects[ann_obj_idx][1]
-                mask = 
-                figure = sly.VideoFigure(video_objects[obj_id], mask, idx)
-
-
-
-
-            a=0
-
-
+                mask = mask_all == obj_id
+                if len(np.unique(mask)) == 1:
+                    continue
+                if img_size[1] % 2 == 1:
+                    mask[mask.shape[0] - 1, :] = False
+                if img_size[0] % 2 == 1:
+                    mask[:, mask.shape[1] - 1] = False
+                geom = sly.Bitmap(mask)
+                if not video_objects.get(obj_id):
+                    continue
+                curr_video_obj = video_objects[obj_id]
+                figure = sly.VideoFigure(curr_video_obj, geom, idx)
+                figures.append(figure)
+            new_frame = sly.Frame(idx, figures)
+            frames.append(new_frame)
 
             video.write(curr_im)
         progress.iter_done_report()
         video.release()
 
         file_info = api.video.upload_paths(new_dataset.id, [imgs_dir], [video_path])
-
-
-
-        a = 0
-
-
-
-
-
-    search_anns = os.path.join(input_dir, "annotations_*.json")
-    anns_fine_paths = glob.glob(search_anns)
-    if len(anns_fine_paths) == 0:
-        logger.warn('There is no annotations in input data. Check your input format')
-    anns_fine_paths.sort()
-
-    ovis_classes = {}
-    id_to_obj_classes = {}
-
-    new_project = api.project.create(WORKSPACE_ID, project_name, type=sly.ProjectType.VIDEOS,
-                                     change_name_if_conflict=True)
-
-    tag_meta_train = sly.TagMeta(train_tag, sly.TagValueType.NONE)
-    tag_meta_val = sly.TagMeta(val_tag, sly.TagValueType.NONE)
-    tag_collection = sly.TagMetaCollection([tag_meta_train, tag_meta_val])
-    meta = sly.ProjectMeta(tag_metas=tag_collection)
-    api.project.update_meta(new_project.id, meta.to_json())
-
-    for ann_path in anns_fine_paths:
-        ann_name = str(Path(ann_path).name)
-        arch_name = sly.fs.get_file_name(ann_name).split('_')[1] + archive_ext
-        arch_path = os.path.join(input_dir, arch_name)
-        if not sly.fs.file_exists(arch_path):
-            logger.warn('There is no archive {} in the input data, but it must be'.format(arch_name))
-            continue
-
-        if zipfile.is_zipfile(arch_path):
-            with zipfile.ZipFile(arch_path, 'r') as archive:
-                archive.extractall(input_dir)
+        new_frames_collection = sly.FrameCollection(frames)
+        new_objects = sly.VideoObjectCollection(list(video_objects.values()))
+        if imgs_dir in train_val_names['train']:
+            tag = VideoTag(tag_meta_train)
+        elif imgs_dir in train_val_names['val']:
+            tag = VideoTag(tag_meta_val)
         else:
-            raise Exception("No such file".format(archive_path))
+            logger.warn(
+                'There is no folder name {} in train.txt or val.txt. The video will be assigned a train tag value'.format(
+                    imgs_dir))
+            tag = VideoTag(tag_meta_train)
 
-        imgs_dir_path = os.path.join(input_dir, sly.fs.get_file_name(arch_name))
-        ann_json = sly.json.load_json_file(ann_path)
-
-        videos = ann_json['videos']
-        ovis_anns = ann_json['annotations']
-        if not ovis_anns:
-            logger.warn('There is no annotations data in {}'.format(ann_name))
-            continue
-
-        for category in ann_json['categories']:
-            if category['id'] not in ovis_classes.keys():
-                ovis_classes[category['id']] = category['name']
-                id_to_obj_classes[category['id']] = sly.ObjClass(category['name'], sly.Bitmap)
-            else:
-                if ovis_classes[category['id']] != category['name']:
-                    logger.warn(
-                        'Category with id {} corresponds to the value {}, not {}. Check your input annotations'.format(
-                            category['id'], ovis_classes[category['id']], category['name']))
-
-        new_dataset = api.dataset.create(new_project.id, sly.fs.get_file_name(ann_name), change_name_if_conflict=True)
-        new_meta = sly.ProjectMeta(sly.ObjClassCollection(list(id_to_obj_classes.values())))
-        meta = meta.merge(new_meta)
-        api.project.update_meta(new_project.id, meta.to_json())
-
-        anns = defaultdict(list)
-        for ovis_ann in ovis_anns:
-            anns[ovis_ann['video_id']].append([ovis_ann['category_id'], ovis_ann['id'], ovis_ann['segmentations']])
-
-        for video_data in videos:
-            no_image = False
-            curr_anns = anns[video_data['id']]
-            video_objects = {}
-            for curr_ann in curr_anns:
-                video_objects[curr_ann[1]] = sly.VideoObject(id_to_obj_classes[curr_ann[0]])
-
-            #=============================create video===============================================================
-            img_size = (video_data['width'], video_data['height'])
-            video_folder = video_data['file_names'][0].split('/')[0]
-            video_name = video_folder + video_ext
-            images_path = os.path.join(imgs_dir_path, video_folder)
-            if not sly.fs.dir_exists(images_path):
-                logger.warn('There is no folder {} in the input data, but it is in annotation'.format(images_path))
-                continue
-            images = os.listdir(images_path)
-            progress = sly.Progress('Create video', len(videos), app_logger)
-            video_path = os.path.join(extract_dir, video_name)
-            video = cv2.VideoWriter(video_path, cv2.VideoWriter_fourcc(*'MP4V'), frame_rate, img_size)
-            for curr_ovis_im_path in video_data['file_names']:
-                curr_im_path = os.path.join(imgs_dir_path, curr_ovis_im_path)
-                if not sly.fs.file_exists(curr_im_path):
-                    logger.warn('There is no image {} in {} folder, but it must be. Video will be skipped.'.format(
-                        curr_ovis_im_path.split('/')[1], video_name))
-                    no_image = True
-                    break
-                video.write(cv2.imread(curr_im_path))
-            if no_image:
-                continue
-            progress.iter_done_report()
-            video.release()
-            # =======================================================================================================
-            frames = []
-            for idx in range(len(images)):
-                figures = []
-                for fig_id, curr_ann in enumerate(curr_anns):
-                    ovis_geom = curr_ann[2][idx]
-                    if ovis_geom:
-                        mask = decode(ovis_geom).astype(bool)
-                        if img_size[1] % 2 == 1:
-                            mask[mask.shape[0] - 1, :] = False
-                        if img_size[0] % 2 == 1:
-                            mask[:, mask.shape[1] - 1] = False
-                        geom = sly.Bitmap(mask)
-                        figure = sly.VideoFigure(video_objects[curr_ann[1]], geom, idx)
-                        figures.append(figure)
-                new_frame = sly.Frame(idx, figures)
-                frames.append(new_frame)
-
-            file_info = api.video.upload_paths(new_dataset.id, [video_name], [video_path])
-            new_frames_collection = sly.FrameCollection(frames)
-            new_objects = sly.VideoObjectCollection(list(video_objects.values()))
-            if random.random() < samplePercent:
-                tag = VideoTag(tag_meta_val)
-            else:
-                tag = VideoTag(tag_meta_train)
-            tag_collection = VideoTagCollection([tag])
-            ann = sly.VideoAnnotation((img_size[1], img_size[0]), len(frames), objects=new_objects,
-                                      frames=new_frames_collection, tags=tag_collection)
-            logger.info('Create annotation for video {}'.format(video_name))
-            api.video.annotation.append(file_info[0].id, ann)
+        tag_collection = VideoTagCollection([tag])
+        ann = sly.VideoAnnotation((img_size[1], img_size[0]), len(frames), objects=new_objects,
+                                  frames=new_frames_collection, tags=tag_collection)
+        logger.info('Create annotation for video {}'.format(imgs_dir))
+        api.video.annotation.append(file_info[0].id, ann)
 
     my_app.stop()
 
