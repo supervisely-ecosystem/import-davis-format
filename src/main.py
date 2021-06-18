@@ -18,7 +18,7 @@ TEAM_ID = int(os.environ['context.teamId'])
 WORKSPACE_ID = int(os.environ['context.workspaceId'])
 INPUT_DIR = os.environ.get("modal.state.slyFolder")
 #INPUT_FILE = os.environ.get("modal.state.slyFile")
-PROJECT_NAME = 'DAVIS2017'
+#PROJECT_NAME = 'DAVIS2017'
 DATASET_NAME = 'ds'
 EXTARACT_DIR_NAME = 'DAVIS'
 logger = sly.logger
@@ -118,7 +118,7 @@ def import_davis(api: sly.Api, task_id, context, state, app_logger):
 
     if sly.fs.dir_exists(os.path.join(annotations_path, POSSIBLE_SUBDIRS[0])):
         anns_dir = os.path.join(annotations_path, POSSIBLE_SUBDIRS[0])
-    elif sly.fs.dir_exists(os.path.join(annotations_path, POSSIBLE_SUBDIRS[0])):
+    elif sly.fs.dir_exists(os.path.join(annotations_path, POSSIBLE_SUBDIRS[1])):
         anns_dir = os.path.join(annotations_path, POSSIBLE_SUBDIRS[1])
     else:
         logger.warn(
@@ -230,7 +230,7 @@ def import_davis(api: sly.Api, task_id, context, state, app_logger):
             frames.append(new_frame)
 
             video.write(curr_im)
-        progress.iter_done_report()
+            progress.iter_done_report()
         video.release()
 
         file_info = api.video.upload_paths(new_dataset.id, [imgs_dir], [video_path])
