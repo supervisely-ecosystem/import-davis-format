@@ -1,18 +1,18 @@
 {
-  "name": "Import OVIS",
+  "name": "Import DAVIS",
   "type": "app",
   "categories": [
     "Import"
   ],
-  "description": "Import OVIS to Supervisely",
+  "description": "Import DAVIS to Supervisely",
   "docker_image": "supervisely/base-py-sdk:6.1.64",
   "main_script": "src/main.py",
   "modal_template": "src/modal.html",
-  "modal_template_state": {"samplePercent":  25},
+  "modal_template_state": {},
   "task_location": "workspace_tasks",
-  "icon": "https://i.imgur.com/i0WHkUF.png",
+  "icon": "https://i.imgur.com/nkozK9b.png",
   "icon_background": "#FFFFFF",
   "context_menu": {
-    "target": ["files_folder", "files_file"]
+    "target": ["files_folder"]
   }
 }
