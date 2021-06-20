@@ -43,7 +43,7 @@ Upload your data in `DAVIS` format to `Team Files` (for example you can create `
 
 ## How to use
 
-Resulting project will be placed to your current `Workspace` with the same name as the `davis` archive. Videos in datasets will have tags (`train`, `val`) corresponding to the data in `DAVIS-2017` archive.
+Resulting project will be placed to your current `Workspace` with the same name as the `davis` archive. Videos in datasets will have tags (`train`, `val`) corresponding to the data in `DAVIS-2017` archive(`ImageSets` folder).
 
 <img src="https://i.imgur.com/MMgT371.png"/>
 
