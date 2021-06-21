@@ -17,12 +17,9 @@ my_app = sly.AppService()
 TEAM_ID = int(os.environ['context.teamId'])
 WORKSPACE_ID = int(os.environ['context.workspaceId'])
 INPUT_DIR = os.environ.get("modal.state.slyFolder")
-#INPUT_FILE = os.environ.get("modal.state.slyFile")
-#PROJECT_NAME = 'DAVIS2017'
 DATASET_NAME = 'ds'
 EXTARACT_DIR_NAME = 'DAVIS'
 logger = sly.logger
-#archive_ext = '.zip'
 frame_rate = 10
 video_ext = '.mp4'
 train_tag = 'train'
@@ -59,18 +56,11 @@ def import_davis(api: sly.Api, task_id, context, state, app_logger):
 
     storage_dir = my_app.data_dir
 
-    #if INPUT_DIR:
     cur_files_path = INPUT_DIR
     extract_dir = os.path.join(storage_dir, str(Path(cur_files_path).parent).lstrip("/"))
     input_dir = os.path.join(extract_dir, Path(cur_files_path).name)
     archive_path = os.path.join(storage_dir, cur_files_path.split("/")[-2] + ".tar")
     project_name = Path(cur_files_path).name
-    # else:
-    #     cur_files_path = INPUT_FILE
-    #     extract_dir = os.path.join(storage_dir, get_file_name(cur_files_path))
-    #     archive_path = os.path.join(storage_dir, get_file_name_with_ext(cur_files_path))
-    #     project_name = get_file_name(INPUT_FILE)
-    #     input_dir = extract_dir
 
     api.file.download(TEAM_ID, cur_files_path, archive_path)
 
