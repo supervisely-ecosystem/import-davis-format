@@ -32,6 +32,16 @@ images_ext = '.jpg'
 anns_ext = '.png'
 first_image_name = '00000.jpg'
 
+train_val_480_url = 'https://data.vision.ee.ethz.ch/csergi/share/davis/DAVIS-2017-Unsupervised-trainval-480p.zip'
+train_val_full_url = 'https://data.vision.ee.ethz.ch/csergi/share/davis/DAVIS-2017-Unsupervised-trainval-Full-Resolution.zip'
+anns_480_url = 'https://data.vision.ee.ethz.ch/csergi/share/davis/DAVIS-2017_semantics-480p.zip'
+anns_full_url = 'https://data.vision.ee.ethz.ch/csergi/share/davis/DAVIS-2017_semantics-Full-resolution.zip'
+test_dev_480_url = 'https://data.vision.ee.ethz.ch/csergi/share/davis/DAVIS-2019-Unsupervised-test-dev-480p.zip'
+test_dev_full_url = 'https://data.vision.ee.ethz.ch/csergi/share/davis/DAVIS-2019-Unsupervised-test-dev-Full-Resolution.zip'
+test_chall_480_url = 'https://data.vision.ee.ethz.ch/csergi/share/davis/DAVIS-2019-Unsupervised-test-challenge-480p.zip'
+test_chall_full_url = 'https://data.vision.ee.ethz.ch/csergi/share/davis/DAVIS-2019-Unsupervised-test-challenge-Full-Resolution.zip'
+
+
 
 def check_input_data(working_dir):
     all_items = os.listdir(working_dir)
