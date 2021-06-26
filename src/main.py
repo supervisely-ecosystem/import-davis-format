@@ -32,6 +32,7 @@ project_name = 'davis2017'
 work_dir = 'davis_data'
 trainval = 'trainval'
 
+
 train_val_480_url = 'https://data.vision.ee.ethz.ch/csergi/share/davis/DAVIS-2017-Unsupervised-trainval-480p.zip'
 train_val_full_url = 'https://data.vision.ee.ethz.ch/csergi/share/davis/DAVIS-2017-Unsupervised-trainval-Full-Resolution.zip'
 anns_480_url = 'https://data.vision.ee.ethz.ch/csergi/share/davis/DAVIS-2017_semantics-480p.zip'
@@ -41,8 +42,22 @@ test_dev_full_url = 'https://data.vision.ee.ethz.ch/csergi/share/davis/DAVIS-201
 test_chall_480_url = 'https://data.vision.ee.ethz.ch/csergi/share/davis/DAVIS-2019-Unsupervised-test-challenge-480p.zip'
 test_chall_full_url = 'https://data.vision.ee.ethz.ch/csergi/share/davis/DAVIS-2019-Unsupervised-test-challenge-Full-Resolution.zip'
 
+test_dev_480_url_2017 = 'https://data.vision.ee.ethz.ch/csergi/share/davis/DAVIS-2017-test-dev-480p.zip'
+test_dev_full_url_2017 = 'https://data.vision.ee.ethz.ch/csergi/share/davis/DAVIS-2017-test-dev-Full-Resolution.zip'
+test_chall_480_url_2017 = 'https://data.vision.ee.ethz.ch/csergi/share/davis/DAVIS-2017-test-challenge-480p.zip'
+test_chall_full_url_2017 = 'https://data.vision.ee.ethz.ch/csergi/share/davis/DAVIS-2017-test-challenge-Full-Resolution.zip'
+
+train_val_2016_url = 'https://graphics.ethz.ch/Downloads/Data/Davis/DAVIS-data.zip'
+
 resolution = os.environ['modal.state.resolution']
 datasets = os.environ['modal.state.currDataset']
+davis_year = os.environ['modal.state.Davis']
+davis_type = os.environ['modal.state.type']
+
+logger.warn('resolution {}'.format(resolution))
+logger.warn('datasets {}'.format(datasets))
+logger.warn('davis_year {}'.format(davis_year))
+logger.warn('davis_type {}'.format(davis_type))
 
 if len(datasets) != 2:
     datasets = os.environ['modal.state.currDataset']
@@ -53,22 +68,33 @@ else:
     my_app.stop()
 
 LINKS = []
-if resolution == '480p':
-    for ds in datasets:
-        if ds == 'TrainVal':
-            LINKS.extend([train_val_480_url, anns_480_url])
-        if ds == 'TestDev':
-            LINKS.append(test_dev_480_url)
-        if ds == 'TestChallenge':
-            LINKS.append(test_chall_480_url)
+if davis_year == '2017':
+    if resolution == '480p':
+        for ds in datasets:
+            if ds == 'TrainVal':
+                LINKS.extend([train_val_480_url, anns_480_url])
+            if ds == 'TestDev' and davis_type == 'Unsupervised':
+                LINKS.append(test_dev_480_url)
+            if ds == 'TestChallenge' and davis_type == 'Unsupervised':
+                LINKS.append(test_chall_480_url)
+            if ds == 'TestDev' and davis_type == 'Semi-supervised':
+                LINKS.append(test_dev_480_url_2017)
+            if ds == 'TestChallenge' and davis_type == 'Semi-supervised':
+                LINKS.append(test_chall_480_url_2017)
+    else:
+        for ds in datasets:
+            if ds == 'TrainVal':
+                LINKS.extend([train_val_full_url, anns_full_url])
+            if ds == 'TestDev' and davis_type == 'Unsupervised':
+                LINKS.append(test_dev_full_url)
+            if ds == 'TestChallenge' and davis_type == 'Unsupervised':
+                LINKS.append(test_chall_full_url)
+            if ds == 'TestDev' and davis_type == 'Semi-supervised':
+                LINKS.append(test_dev_full_url_2017)
+            if ds == 'TestChallenge' and davis_type == 'Semi-supervised':
+                LINKS.append(test_chall_full_url_2017)
 else:
-    for ds in datasets:
-        if ds == 'TrainVal':
-            LINKS.extend([train_val_full_url, anns_full_url])
-        if ds == 'TestDev':
-            LINKS.append(test_dev_full_url)
-        if ds == 'TestChallenge':
-            LINKS.append(test_chall_full_url)
+    pass
 
 
 def check_input_data(working_dir):
@@ -118,7 +144,7 @@ def import_davis(api: sly.Api, task_id, context, state, app_logger):
     for curr_arch_name in os.listdir(work_dir_path):
         curr_arch_path = os.path.join(work_dir_path, curr_arch_name)
         if sly.io.fs.file_exists(curr_arch_path):
-            if 'DAVIS-2017' in curr_arch_path:
+            if 'DAVIS-2017_semantics' in curr_arch_path:
                 subdir = trainval
             elif 'dev' in curr_arch_path:
                 subdir = 'test_dev'

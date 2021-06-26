@@ -1,20 +1,42 @@
 <sly-field
-          title="Choose import parameters:">
-
-    <sly-field title="Dataset resolution" style="margin: 0 10px 0 0;">
+          title="Import datasets:">
+    <el-tabs type="border-card" class="el-tabs-cards" v-model="state.Davis">
+        <el-tab-pane name="2017">
+            <el-radio slot="label" v-model="state.Davis" label="2017">
+                Davis 2017
+            </el-radio>
+            <sly-field title="Dataset resolution:" style="margin: 0 10px 0 0;">
             <el-select v-model="state.resolution" placeholder="Select resolution">
                 <el-option key="480p" label="480p" value="480p"></el-option>
-                <el-option key="Full Resolution" label="Full-Resolution" value="Full-Resolution"></el-option>
+                <el-option key="Full Resolution" label="Full Resolution" value="Full"></el-option>
             </el-select>
-    </sly-field>
+            </sly-field>
 
-    <sly-field title="Choose datasets you want to get:">
+            <sly-field title="Dataset type:" style="margin: 10px 10px 0 0;">
+            <el-select v-model="state.type" placeholder="Select type">
+                <el-option key="Semi-supervised" label="Semi-supervised" value="Semi-supervised"></el-option>
+                <el-option key="Unsupervised" label="Unsupervised" value="Unsupervised"></el-option>
+            </el-select>
+            </sly-field>
+
+            <sly-field title="Choose statistics you want to get:" style="margin: 10px 10px 0 0;">
             <el-checkbox-group v-model="state.currDataset" >
                 <el-checkbox label="TrainVal"></el-checkbox>
                 <el-checkbox label="TestDev"></el-checkbox>
                 <el-checkbox label="TestChallenge"></el-checkbox>
             </el-checkbox-group>
     </sly-field>
-
-
+        </el-tab-pane>
+        <el-tab-pane name="2016">
+            <el-radio slot="label" v-model="state.Davis" label="2016">
+                Davis 2016
+            </el-radio>
+            <sly-field title="Dataset resolution:" style="margin: 0 10px 0 0;">
+            <el-select v-model="state.resolution" placeholder="Select resolution">
+                <el-option key="480p" label="480p" value="480p"></el-option>
+                <el-option key="Full Resolution" label="Full Resolution" value="Full"></el-option>
+            </el-select>
+            </sly-field>
+        </el-tab-pane>
+    </el-tabs>
 </sly-field>
