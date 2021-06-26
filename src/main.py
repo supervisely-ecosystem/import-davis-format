@@ -47,6 +47,9 @@ if os.environ['modal.state.currDataset']:
 else:
     datasets = ['TrainVal']
 
+logger.warn('LINKS {}'.format(os.environ['modal.state.currDataset']))
+logger.warn('resolution {}'.format(resolution))
+
 LINKS = []
 if resolution == '480p':
     for ds in datasets:
@@ -98,8 +101,6 @@ def import_davis(api: sly.Api, task_id, context, state, app_logger):
         return progress_cb
 
     storage_dir = my_app.data_dir
-    logger.warn('LINKS {}'.format(LINKS))
-    logger.warn('resolution {}'.format(resolution))
     work_dir = 'davis_data'
     work_dir_path = os.path.join(storage_dir, work_dir)
     sly.io.fs.mkdir(work_dir_path)
