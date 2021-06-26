@@ -47,6 +47,8 @@ if os.environ['modal.state.currDataset']:
     datasets = datasets[1:-1].replace('\'', '')
     datasets = datasets.replace(' ', '').split(',')
 
+logger.warn('{}'.format(datasets))
+
 LINKS = []
 if resolution == '480p':
     for ds in datasets:
