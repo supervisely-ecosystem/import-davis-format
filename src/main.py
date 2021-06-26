@@ -47,7 +47,7 @@ if os.environ['modal.state.currDataset']:
 else:
     datasets = ['TrainVal']
 
-logger.warn('LINKS {}'.format(os.environ['modal.state.currDataset']))
+logger.warn('LINKS {}'.format(datasets))
 logger.warn('resolution {}'.format(resolution))
 
 LINKS = []
