@@ -29,6 +29,8 @@ images_ext = '.jpg'
 anns_ext = '.png'
 first_image_name = '00000.jpg'
 project_name = 'davis2017'
+work_dir = 'davis_data'
+trainval = 'trainval'
 
 train_val_480_url = 'https://data.vision.ee.ethz.ch/csergi/share/davis/DAVIS-2017-Unsupervised-trainval-480p.zip'
 train_val_full_url = 'https://data.vision.ee.ethz.ch/csergi/share/davis/DAVIS-2017-Unsupervised-trainval-Full-Resolution.zip'
@@ -49,8 +51,6 @@ if len(datasets) != 2:
 else:
     logger.warn('You have no choose any dataset')
     my_app.stop()
-
-
 
 LINKS = []
 if resolution == '480p':
@@ -103,7 +103,6 @@ def import_davis(api: sly.Api, task_id, context, state, app_logger):
         return progress_cb
 
     storage_dir = my_app.data_dir
-    work_dir = 'davis_data'
     work_dir_path = os.path.join(storage_dir, work_dir)
     sly.io.fs.mkdir(work_dir_path)
 
@@ -120,7 +119,7 @@ def import_davis(api: sly.Api, task_id, context, state, app_logger):
         curr_arch_path = os.path.join(work_dir_path, curr_arch_name)
         if sly.io.fs.file_exists(curr_arch_path):
             if 'DAVIS-2017' in curr_arch_path:
-                subdir = 'trainval'
+                subdir = trainval
             elif 'dev' in curr_arch_path:
                 subdir = 'test_dev'
             elif 'challenge' in curr_arch_path:
@@ -148,7 +147,7 @@ def import_davis(api: sly.Api, task_id, context, state, app_logger):
     new_dataset = api.dataset.create(new_project.id, DATASET_NAME, change_name_if_conflict=True)
     # =====================================================================================================
     for working_dir in dirs_for_prepare:
-        if 'trainval' in working_dir:
+        if trainval in working_dir:
             check_input_data(working_dir)
             anns_dir = os.path.join(working_dir, 'Annotations_unsupervised', resolution)
             imgs_path = os.path.join(working_dir, 'JPEGImages', resolution)
