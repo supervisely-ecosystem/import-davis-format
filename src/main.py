@@ -144,7 +144,7 @@ def import_davis(api: sly.Api, task_id, context, state, app_logger):
     for curr_arch_name in os.listdir(work_dir_path):
         curr_arch_path = os.path.join(work_dir_path, curr_arch_name)
         if sly.io.fs.file_exists(curr_arch_path):
-            if 'DAVIS-2017-Unsupervised' in curr_arch_path:
+            if 'DAVIS-2017-Unsupervised' in curr_arch_path or 'DAVIS-2017_semantics' in curr_arch_path:
                 subdir = trainval
             elif 'dev' in curr_arch_path:
                 subdir = 'test_dev'
