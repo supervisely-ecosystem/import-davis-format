@@ -43,7 +43,7 @@ resolution = os.environ['modal.state.resolution']
 if os.environ['modal.state.currDataset']:
     datasets = os.environ['modal.state.currDataset']
     logger.warn('{}'.format(datasets))
-    datasets = datasets[1:-1].replace('"', '')
+    datasets = datasets[1:-1].replace('\'', '')
     logger.warn('{}'.format(datasets))
     datasets = datasets.replace(' ', '').split(',')
     logger.warn('{}'.format(datasets))
