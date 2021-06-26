@@ -4,8 +4,8 @@
 
     <sly-field title="Dataset resolution" style="margin: 0 10px 0 0;">
             <el-select v-model="state.provider" placeholder="Select resolution">
-                <el-option key="google" label="google cloud storage" value="google"></el-option>
-                <el-option key="amazon" label="amazon s3" value="s3"></el-option>
+                <el-option key="480p" label="480p" value="480p"></el-option>
+                <el-option key="Full Resolution" label="Full Resolution" value="Full"></el-option>
             </el-select>
     </sly-field>
 
@@ -13,7 +13,7 @@
             <el-checkbox-group v-model="state.currDataset" >
                 <el-checkbox label="Train Val"></el-checkbox>
                 <el-checkbox label="Test Dev"></el-checkbox>
-                <el-checkbox label="Test Challenge "></el-checkbox>
+                <el-checkbox label="Test Challenge"></el-checkbox>
             </el-checkbox-group>
     </sly-field>
 
