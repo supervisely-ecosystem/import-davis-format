@@ -41,9 +41,8 @@ test_chall_full_url = 'https://data.vision.ee.ethz.ch/csergi/share/davis/DAVIS-2
 
 resolution = os.environ['modal.state.resolution']
 datasets = os.environ['modal.state.currDataset']
-logger.warn('{}'.format(datasets))
-logger.warn('{}'.format(len(datasets)))
-if len(datasets) != 0:
+
+if len(datasets) != 2:
     datasets = os.environ['modal.state.currDataset']
     datasets = datasets[1:-1].replace('\'', '')
     datasets = datasets.replace(' ', '').split(',')
