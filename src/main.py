@@ -40,15 +40,12 @@ test_chall_480_url = 'https://data.vision.ee.ethz.ch/csergi/share/davis/DAVIS-20
 test_chall_full_url = 'https://data.vision.ee.ethz.ch/csergi/share/davis/DAVIS-2019-Unsupervised-test-challenge-Full-Resolution.zip'
 
 resolution = os.environ['modal.state.resolution']
+datasets = ['TrainVal']
+
 if os.environ['modal.state.currDataset']:
     datasets = os.environ['modal.state.currDataset']
-    logger.warn('{}'.format(datasets))
     datasets = datasets[1:-1].replace('\'', '')
-    logger.warn('{}'.format(datasets))
     datasets = datasets.replace(' ', '').split(',')
-    logger.warn('{}'.format(datasets))
-else:
-    datasets = ['TrainVal']
 
 LINKS = []
 if resolution == '480p':
