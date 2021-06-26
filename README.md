@@ -33,12 +33,16 @@ App downloads `DAVIS` data from official `DAVIS` site([click here](https://davis
 
 <img src="https://i.imgur.com/pxFNPPh.png"/>
 
+**Step 3**: Select the resolution and type of import of datasets.
+
+<img src="https://i.imgur.com/vBW90az.png" width="800px"/>
+
+Press `RUN`button. Now the window with program running logs will aappear. You don't have to wait for the program to finish execution(you can safely close the window).
+
+
+
 ## How to use
 
-Resulting project will be placed to your current `Workspace` with the same name as the `davis` archive. Videos in datasets will have tags (`train`, `val`) corresponding to the data in `DAVIS-2017` archive(`ImageSets` folder).
+Resulting project will be placed to your current `Workspace` with name `davis2017` . Videos in datasets will have tags (`train`, `val`, `test`) corresponding to the input data.
 
-<img src="https://i.imgur.com/MMgT371.png"/>
-
-You can also access your project by clicking on it's name from `Tasks` page.
-
-<img src="https://i.imgur.com/gpsZ1uz.png">
+<img src="https://i.imgur.com/mMj35R2.png"/>
