@@ -98,9 +98,11 @@ def import_davis(api: sly.Api, task_id, context, state, app_logger):
         return progress_cb
 
     storage_dir = my_app.data_dir
-
+    logger.warn('LINKS {}'.format(LINKS))
+    logger.warn('resolution {}'.format(resolution))
     work_dir = 'davis_data'
     work_dir_path = os.path.join(storage_dir, work_dir)
+    sly.io.fs.mkdir(work_dir_path)
 
     for curr_url in LINKS:
         arch_name = get_file_name_with_ext(curr_url)
