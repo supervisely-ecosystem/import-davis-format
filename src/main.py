@@ -11,12 +11,15 @@ from supervisely_lib.video_annotation.video_tag import VideoTag
 from supervisely_lib.video_annotation.video_tag_collection import VideoTagCollection
 from PIL import Image
 import numpy as np
+from supervisely_lib.io.fs import download, file_exists, get_file_name, remove_dir
+from functools import partial
+import requests
 
 
 my_app = sly.AppService()
 TEAM_ID = int(os.environ['context.teamId'])
 WORKSPACE_ID = int(os.environ['context.workspaceId'])
-INPUT_DIR = os.environ.get("modal.state.slyFolder")
+#INPUT_DIR = os.environ.get("modal.state.slyFolder")
 DATASET_NAME = 'ds'
 EXTARACT_DIR_NAME = 'DAVIS'
 logger = sly.logger
@@ -42,6 +45,10 @@ test_chall_480_url = 'https://data.vision.ee.ethz.ch/csergi/share/davis/DAVIS-20
 test_chall_full_url = 'https://data.vision.ee.ethz.ch/csergi/share/davis/DAVIS-2019-Unsupervised-test-challenge-Full-Resolution.zip'
 
 
+test = os.environ['modal.state.provider']
+test2 = os.environ['modal.state.currDataset']
+logger.warn('{} {}'.format(test, test2))
+a = 5 / 0
 
 def check_input_data(working_dir):
     all_items = os.listdir(working_dir)
@@ -64,27 +71,48 @@ def check_imgs_to_anns(img_paths, ann_paths, data_folder):
 @sly.timeit
 def import_davis(api: sly.Api, task_id, context, state, app_logger):
 
+
+    def update_progress(count, index, api: sly.Api, task_id, progress: sly.Progress):
+        progress.iters_done(count)
+
+    def get_progress_cb(index, message, total, is_size=False, min_report_percent=5, upd_func=update_progress):
+        progress = sly.Progress(message, total, is_size=is_size, min_report_percent=min_report_percent)
+        progress_cb = partial(upd_func, index=index, api=api, task_id=task_id, progress=progress)
+        progress_cb(0)
+        return progress_cb
+
     storage_dir = my_app.data_dir
 
-    cur_files_path = INPUT_DIR
-    extract_dir = os.path.join(storage_dir, str(Path(cur_files_path).parent).lstrip("/"))
-    input_dir = os.path.join(extract_dir, Path(cur_files_path).name)
-    archive_path = os.path.join(storage_dir, cur_files_path.split("/")[-2] + ".tar")
-    project_name = Path(cur_files_path).name
+    # cur_files_path = INPUT_DIR
+    # extract_dir = os.path.join(storage_dir, str(Path(cur_files_path).parent).lstrip("/"))
+    # input_dir = os.path.join(extract_dir, Path(cur_files_path).name)
+    # archive_path = os.path.join(storage_dir, cur_files_path.split("/")[-2] + ".tar")
+    # project_name = Path(cur_files_path).name
 
-    api.file.download(TEAM_ID, cur_files_path, archive_path)
 
-    if tarfile.is_tarfile(archive_path):
-        with tarfile.open(archive_path) as archive:
-            archive.extractall(extract_dir)
-    else:
-        raise Exception("No such file".format(archive_path))
+    #archive_path = '/home/andrew/alex_work/app_data/data/davis_data/DAVIS-2017-Unsupervised-trainval-480p.zip'
+    arch_name = 'DAVIS-2017_semantics-480p.zip'
+    work_dir = 'data/davis_data'
+    archive_path = os.path.join(storage_dir, work_dir, arch_name)
 
-    for curr_arch_name in os.listdir(input_dir):
-        curr_arch_path = os.path.join(input_dir, curr_arch_name)
+    response = requests.head(train_val_480_url, allow_redirects=True)
+    sizeb = int(response.headers.get('content-length', 0))
+    progress_cb = get_progress_cb(6, "TESSST", sizeb, is_size=True, min_report_percent=1)
+    download(train_val_480_url, archive_path, my_app.cache, progress_cb)
+
+    # api.file.download(TEAM_ID, cur_files_path, archive_path)
+    #
+    # if tarfile.is_tarfile(archive_path):
+    #     with tarfile.open(archive_path) as archive:
+    #         archive.extractall(extract_dir)
+    # else:
+    #     raise Exception("No such file".format(archive_path))
+
+    for curr_arch_name in os.listdir(storage_dir):
+        curr_arch_path = os.path.join(storage_dir, curr_arch_name)
         if zipfile.is_zipfile(curr_arch_path):
             with zipfile.ZipFile(curr_arch_path, 'r') as archive:
-                archive.extractall(input_dir)
+                archive.extractall(storage_dir)
         else:
             logger.warn('Instance {} is not zip archive, it will be skipped'.format(curr_arch_name))
             continue

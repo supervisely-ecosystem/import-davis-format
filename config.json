@@ -8,11 +8,10 @@
   "docker_image": "supervisely/base-py-sdk:6.1.64",
   "main_script": "src/main.py",
   "modal_template": "src/modal.html",
-  "modal_template_state": {},
-  "task_location": "workspace_tasks",
+  "modal_template_state": {"provider": ["google cloud storage"], "currDataset":  ["Train Val"]},
+  "task_location": "application_sessions",
+  "isolate": true,
+  "headless": true,
   "icon": "https://i.imgur.com/nkozK9b.png",
-  "icon_background": "#FFFFFF",
-  "context_menu": {
-    "target": ["files_folder"]
-  }
+  "icon_background": "#FFFFFF"
 }
