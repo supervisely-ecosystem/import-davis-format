@@ -8,7 +8,7 @@
   "docker_image": "supervisely/base-py-sdk:6.1.64",
   "main_script": "src/main.py",
   "modal_template": "src/modal.html",
-  "modal_template_state": {"resolution": "480p", "currDataset":  ["Train Val"]},
+  "modal_template_state": {"resolution": "480p", "currDataset":  ["TrainVal"]},
   "task_location": "application_sessions",
   "isolate": true,
   "headless": true,
