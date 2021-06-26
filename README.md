@@ -23,23 +23,15 @@
 
 ## Overview
 
-Import data in [DAVIS](https://davischallenge.org/) format to [Supervisely](https://supervise.ly/) from folder.
-
-## Preparation
-
-Download `DAVIS` data from official `DAVIS` site([click here](https://davischallenge.org/davis2017/code.html#unsupervised)). You need to download `DAVIS-2017` archive(`DAVIS-2017-trainval-480p.zip` or `DAVIS-2017-Unsupervised-trainval-480p.zip` or `DAVIS-2017-Unsupervised-trainval-Full-Resolution.zip`) with input images and annotations, and  `DAVIS-2017_semantics-480p.zip` - archive with `davis_semantics.json` file, containing the category for each object in annotations. 
-
-Upload your data in `DAVIS` format to `Team Files` (for example you can create `import_davis` folder).
-
-<img src="https://i.imgur.com/tTHEHSd.png"/>
+App downloads `DAVIS` data from official `DAVIS` site([click here](https://davischallenge.org/davis2017/code.html#unsupervised)). After extraction data is converted to [Supervisely](https://app.supervise.ly) format. 
 
 ## How To Run 
 
 **Step 1**: Add app to your team from [Ecosystem](https://ecosystem.supervise.ly/apps/import-cityscapes) if it is not there.
 
-**Step 2**: Go to `Current Team`->`Files` page, right-click on your `folder`, containing `davis` data and choose `Run App`->`Import Davis`. You will be redirected to `Workspace`->`Tasks` page. 
+**Step 2**:  Open `Plugins & Apps` -> `Import DAVIS` -> `Run` 
 
-<img src="https://i.imgur.com/vPIwW7S.png"/>
+<img src="https://i.imgur.com/pxFNPPh.png"/>
 
 ## How to use
 

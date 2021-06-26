@@ -40,14 +40,15 @@ test_chall_480_url = 'https://data.vision.ee.ethz.ch/csergi/share/davis/DAVIS-20
 test_chall_full_url = 'https://data.vision.ee.ethz.ch/csergi/share/davis/DAVIS-2019-Unsupervised-test-challenge-Full-Resolution.zip'
 
 resolution = os.environ['modal.state.resolution']
-datasets = ['TrainVal']
+datasets = os.environ['modal.state.currDataset']
 
-logger.warn('{}'.format(os.environ['modal.state.currDataset']))
-
-if os.environ['modal.state.currDataset']:
+if len(datasets) != 0:
     datasets = os.environ['modal.state.currDataset']
     datasets = datasets[1:-1].replace('\'', '')
     datasets = datasets.replace(' ', '').split(',')
+else:
+    logger.warn('You have no choose any dataset')
+    my_app.stop()
 
 
 

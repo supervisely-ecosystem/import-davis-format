@@ -1,6 +1,5 @@
 <sly-field
-          title="Get statistics"
-          description="Choose if you want to get statistics for the project or video:">
+          title="Choose import parameters:">
 
     <sly-field title="Dataset resolution" style="margin: 0 10px 0 0;">
             <el-select v-model="state.resolution" placeholder="Select resolution">
@@ -9,7 +8,7 @@
             </el-select>
     </sly-field>
 
-    <sly-field title="Choose statistics you want to get:">
+    <sly-field title="Choose datasets you want to get:">
             <el-checkbox-group v-model="state.currDataset" >
                 <el-checkbox label="TrainVal"></el-checkbox>
                 <el-checkbox label="TestDev"></el-checkbox>
