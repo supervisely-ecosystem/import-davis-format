@@ -1,17 +1,14 @@
-import os, random
-import zipfile, json, tarfile
+import os
+import zipfile
 import supervisely_lib as sly
-import glob
 from supervisely_lib.io.fs import get_file_name, get_file_name_with_ext
-from pathlib import Path
-import shutil
 import cv2
 from collections import defaultdict
 from supervisely_lib.video_annotation.video_tag import VideoTag
 from supervisely_lib.video_annotation.video_tag_collection import VideoTagCollection
 from PIL import Image
 import numpy as np
-from supervisely_lib.io.fs import download, file_exists, get_file_name, remove_dir
+from supervisely_lib.io.fs import download
 from functools import partial
 import requests
 
@@ -19,7 +16,6 @@ import requests
 my_app = sly.AppService()
 TEAM_ID = int(os.environ['context.teamId'])
 WORKSPACE_ID = int(os.environ['context.workspaceId'])
-#INPUT_DIR = os.environ.get("modal.state.slyFolder")
 DATASET_NAME = 'ds'
 EXTARACT_DIR_NAME = 'DAVIS'
 logger = sly.logger
@@ -29,9 +25,6 @@ train_tag = 'train'
 val_tag = 'val'
 test_tag = 'test'
 NECESSARY_ITEMS = ['JPEGImages', 'ImageSets', 'davis_semantics.json']
-#POSSIBLE_ITEMS = ['Annotations_unsupervised', 'Annotations']
-#POSSIBLE_SUBDIRS = ['480p', 'Full-Resolution']
-#SETS_YEAR = '2017'
 images_ext = '.jpg'
 anns_ext = '.png'
 first_image_name = '00000.jpg'
@@ -46,10 +39,8 @@ test_dev_full_url = 'https://data.vision.ee.ethz.ch/csergi/share/davis/DAVIS-201
 test_chall_480_url = 'https://data.vision.ee.ethz.ch/csergi/share/davis/DAVIS-2019-Unsupervised-test-challenge-480p.zip'
 test_chall_full_url = 'https://data.vision.ee.ethz.ch/csergi/share/davis/DAVIS-2019-Unsupervised-test-challenge-Full-Resolution.zip'
 
-#resolution = os.environ['modal.state.resolution']
-#datasets = os.environ['modal.state.currDataset']
-resolution = '480p'
-datasets = '["TrainVal", "TestDev", "TestChallenge"]'
+resolution = os.environ['modal.state.resolution']
+datasets = os.environ['modal.state.currDataset']
 datasets = datasets[1:-1].replace('"', '')
 datasets = datasets.replace(' ', '').split(',')
 
@@ -70,7 +61,6 @@ else:
             LINKS.append(test_dev_full_url)
         if ds == 'TestChallenge':
             LINKS.append(test_chall_full_url)
-
 
 
 def check_input_data(working_dir):
@@ -109,13 +99,13 @@ def import_davis(api: sly.Api, task_id, context, state, app_logger):
     work_dir = 'davis_data'
     work_dir_path = os.path.join(storage_dir, work_dir)
 
-    # for curr_url in LINKS:
-    #     arch_name = get_file_name_with_ext(curr_url)
-    #     archive_path = os.path.join(work_dir_path, arch_name)
-    #     response = requests.head(curr_url, allow_redirects=True)
-    #     sizeb = int(response.headers.get('content-length', 0))
-    #     progress_cb = get_progress_cb(6, "Download {}".format(arch_name), sizeb, is_size=True, min_report_percent=1)
-    #     download(curr_url, archive_path, my_app.cache, progress_cb)
+    for curr_url in LINKS:
+        arch_name = get_file_name_with_ext(curr_url)
+        archive_path = os.path.join(work_dir_path, arch_name)
+        response = requests.head(curr_url, allow_redirects=True)
+        sizeb = int(response.headers.get('content-length', 0))
+        progress_cb = get_progress_cb(6, "Download {}".format(arch_name), sizeb, is_size=True, min_report_percent=1)
+        download(curr_url, archive_path, my_app.cache, progress_cb)
 
     dirs_for_prepare = []
     for curr_arch_name in os.listdir(work_dir_path):
@@ -133,12 +123,13 @@ def import_davis(api: sly.Api, task_id, context, state, app_logger):
 
             curr_extract_dir = os.path.join(work_dir_path, subdir)
             dirs_for_prepare.append(os.path.join(curr_extract_dir, EXTARACT_DIR_NAME))
-        # if zipfile.is_zipfile(curr_arch_path):
-        #     with zipfile.ZipFile(curr_arch_path, 'r') as archive:
-        #         archive.extractall(curr_extract_dir)
-        # else:
-        #     logger.warn('Archive cannot be unpacked {}'.format(curr_arch_name))
-        #     my_app.stop()
+
+        if zipfile.is_zipfile(curr_arch_path):
+            with zipfile.ZipFile(curr_arch_path, 'r') as archive:
+                archive.extractall(curr_extract_dir)
+        else:
+            logger.warn('Archive cannot be unpacked {}'.format(curr_arch_name))
+            my_app.stop()
 
     dirs_for_prepare = set(dirs_for_prepare)
     # =====================================================================================================
@@ -179,7 +170,6 @@ def import_davis(api: sly.Api, task_id, context, state, app_logger):
                         train_val_names[curr_file_name].append(line[0])
 
             obj_classes = {}
-
             for imgs_dir in os.listdir(imgs_path):
                 curr_imgs_path = os.path.join(imgs_path, imgs_dir)
                 curr_anns_path = os.path.join(anns_dir, imgs_dir)
@@ -276,7 +266,6 @@ def import_davis(api: sly.Api, task_id, context, state, app_logger):
                                           frames=new_frames_collection, tags=tag_collection)
                 logger.info('Create annotation for video {}'.format(imgs_dir))
                 api.video.annotation.append(file_info[0].id, ann)
-
 
         else:
             imgs_path = os.path.join(working_dir, 'JPEGImages', resolution)
