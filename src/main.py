@@ -57,11 +57,6 @@ datasets = os.environ['modal.state.currDataset']
 davis_year = os.environ['modal.state.Davis']
 davis_type = os.environ['modal.state.type']
 
-logger.warn('resolution {}'.format(resolution))
-logger.warn('datasets {}'.format(datasets))
-logger.warn('davis_year {}'.format(davis_year))
-logger.warn('davis_type {}'.format(davis_type))
-
 if len(datasets) != 2:
     datasets = os.environ['modal.state.currDataset']
     datasets = datasets[1:-1].replace('\'', '')
@@ -150,7 +145,7 @@ def import_davis(api: sly.Api, task_id, context, state, app_logger):
     for curr_arch_name in os.listdir(work_dir_path):
         curr_arch_path = os.path.join(work_dir_path, curr_arch_name)
         if sly.io.fs.file_exists(curr_arch_path):
-            if 'DAVIS-2017-Unsupervised' in curr_arch_path or 'DAVIS-2017_semantics' in curr_arch_path:
+            if 'DAVIS-2017-Unsupervised' in curr_arch_path or 'DAVIS-2017_semantics' in curr_arch_path or 'DAVIS-2017-trainval' in curr_arch_path:
                 subdir = trainval
             elif 'dev' in curr_arch_path:
                 subdir = 'test_dev'
