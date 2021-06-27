@@ -111,6 +111,7 @@ else:
     else:
         LINKS.append(anns_full_url)
         sets_subdir = os.path.join('ImageSets', resolution_1080)
+        resolution = resolution_1080
 
 
 def check_input_data(working_dir):
