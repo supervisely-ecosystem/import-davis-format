@@ -31,7 +31,7 @@ first_image_name = '00000.jpg'
 project_name = 'davis2017'
 work_dir = 'davis_data'
 trainval = 'trainval'
-
+trainval_2016 = 'trainval2016'
 
 train_val_480_url = 'https://data.vision.ee.ethz.ch/csergi/share/davis/DAVIS-2017-Unsupervised-trainval-480p.zip'
 train_val_full_url = 'https://data.vision.ee.ethz.ch/csergi/share/davis/DAVIS-2017-Unsupervised-trainval-Full-Resolution.zip'
@@ -67,6 +67,7 @@ else:
 
 LINKS = []
 if davis_year == '2017':
+    sets_subdir = 'ImageSets/2017'
     if resolution == '480p':
         for ds in datasets:
             if ds == 'TrainVal' and davis_type == 'Unsupervised':
@@ -101,6 +102,8 @@ if davis_year == '2017':
                 LINKS.append(test_chall_full_url_2017)
 else:
     LINKS.append(train_val_2016_url)
+    anns_subdir = 'Annotations'
+    sets_subdir = os.path.join('ImageSets', resolution)
     if resolution == '480p':
         LINKS.append(anns_480_url)
     else:
@@ -150,10 +153,12 @@ def import_davis(api: sly.Api, task_id, context, state, app_logger):
         download(curr_url, archive_path, my_app.cache, progress_cb)
 
     dirs_for_prepare = []
-    for curr_arch_name in os.listdir(work_dir_path):
+    for curr_arch_name in ['DAVIS-data.zip', 'DAVIS-2017_semantics-480p.zip']:#os.listdir(work_dir_path):
         curr_arch_path = os.path.join(work_dir_path, curr_arch_name)
         if sly.io.fs.file_exists(curr_arch_path):
-            if 'DAVIS-2017-Unsupervised' in curr_arch_path or 'DAVIS-2017_semantics' in curr_arch_path or 'DAVIS-2017-trainval' in curr_arch_path:
+            if davis_year == '2016':
+                subdir = trainval_2016
+            elif 'DAVIS-2017-Unsupervised' in curr_arch_path or 'DAVIS-2017_semantics' in curr_arch_path or 'DAVIS-2017-trainval' in curr_arch_path:
                 subdir = trainval
             elif 'dev' in curr_arch_path:
                 subdir = 'test_dev'
@@ -186,7 +191,7 @@ def import_davis(api: sly.Api, task_id, context, state, app_logger):
             check_input_data(working_dir)
             anns_dir = os.path.join(working_dir, anns_subdir, resolution)
             imgs_path = os.path.join(working_dir, 'JPEGImages', resolution)
-            train_val_path = os.path.join(working_dir, 'ImageSets/2017')
+            train_val_path = os.path.join(working_dir, sets_subdir)
             semantics_path = os.path.join(working_dir, 'davis_semantics.json')
             semantics_json = sly.json.load_json_file(semantics_path)
 
@@ -209,6 +214,10 @@ def import_davis(api: sly.Api, task_id, context, state, app_logger):
                     all_lines = file.readlines()
                     for line in all_lines:
                         line = line.split('\n')[0].split(' ')
+                        if davis_year == '2016':
+                            line = line[0].split('/')[3:]
+                            if line[0] in train_val_names[curr_file_name]:
+                                continue
                         train_val_names[curr_file_name].append(line[0])
 
             obj_classes = {}
@@ -221,6 +230,8 @@ def import_davis(api: sly.Api, task_id, context, state, app_logger):
 
                 video_objects = {}
                 curr_semantic_classes = semantics_json[imgs_dir]
+                if davis_year == '2016':
+                    curr_semantic_classes['255'] = curr_semantic_classes.pop(list(curr_semantic_classes.keys())[0])
                 if imgs_dir == 'color-run' and davis_type == 'Unsupervised': # davis2017 Unsupervised bug in 'color-run'
                     curr_semantic_classes['4'] = 'person'
                 for id, obj_name in curr_semantic_classes.items():
@@ -270,6 +281,8 @@ def import_davis(api: sly.Api, task_id, context, state, app_logger):
                     curr_ann = Image.open(curr_ann_path)
                     ann_objects = curr_ann.getcolors()
                     mask_all = np.asarray(curr_ann)
+                    if len(mask_all.shape) > 2:
+                        mask_all = mask_all[:, : , 0]
                     figures = []
                     for ann_obj_idx in range(1, len(ann_objects)):
                         obj_id = ann_objects[ann_obj_idx][1]
