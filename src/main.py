@@ -47,6 +47,9 @@ test_dev_full_url_2017 = 'https://data.vision.ee.ethz.ch/csergi/share/davis/DAVI
 test_chall_480_url_2017 = 'https://data.vision.ee.ethz.ch/csergi/share/davis/DAVIS-2017-test-challenge-480p.zip'
 test_chall_full_url_2017 = 'https://data.vision.ee.ethz.ch/csergi/share/davis/DAVIS-2017-test-challenge-Full-Resolution.zip'
 
+train_val_480_url_semi = 'https://data.vision.ee.ethz.ch/csergi/share/davis/DAVIS-2017-trainval-480p.zip'
+train_val_full_url_semi = 'https://data.vision.ee.ethz.ch/csergi/share/davis/DAVIS-2017-trainval-Full-Resolution.zip'
+
 train_val_2016_url = 'https://graphics.ethz.ch/Downloads/Data/Davis/DAVIS-data.zip'
 
 resolution = os.environ['modal.state.resolution']
@@ -71,8 +74,10 @@ LINKS = []
 if davis_year == '2017':
     if resolution == '480p':
         for ds in datasets:
-            if ds == 'TrainVal':
+            if ds == 'TrainVal' and davis_type == 'Unsupervised':
                 LINKS.extend([train_val_480_url, anns_480_url])
+            if ds == 'TrainVal' and davis_type == 'Semi-supervised':
+                LINKS.extend([train_val_480_url_semi, anns_480_url])
             if ds == 'TestDev' and davis_type == 'Unsupervised':
                 LINKS.append(test_dev_480_url)
             if ds == 'TestChallenge' and davis_type == 'Unsupervised':
@@ -83,8 +88,10 @@ if davis_year == '2017':
                 LINKS.append(test_chall_480_url_2017)
     else:
         for ds in datasets:
-            if ds == 'TrainVal':
+            if ds == 'TrainVal' and davis_type == 'Unsupervised':
                 LINKS.extend([train_val_full_url, anns_full_url])
+            if ds == 'TrainVal' and davis_type == 'Semi-supervised':
+                LINKS.extend([train_val_full_url_semi, anns_full_url])
             if ds == 'TestDev' and davis_type == 'Unsupervised':
                 LINKS.append(test_dev_full_url)
             if ds == 'TestChallenge' and davis_type == 'Unsupervised':
@@ -117,7 +124,6 @@ def check_imgs_to_anns(img_paths, ann_paths, data_folder):
 @my_app.callback("import_davis")
 @sly.timeit
 def import_davis(api: sly.Api, task_id, context, state, app_logger):
-
 
     def update_progress(count, index, api: sly.Api, task_id, progress: sly.Progress):
         progress.iters_done(count)
@@ -212,6 +218,8 @@ def import_davis(api: sly.Api, task_id, context, state, app_logger):
 
                 video_objects = {}
                 curr_semantic_classes = semantics_json[imgs_dir]
+                if imgs_dir == 'color-run' and davis_type == 'Unsupervised': # davis2017 Unsupervised bug in 'color-run'
+                    curr_semantic_classes['4'] = 'person'
                 for id, obj_name in curr_semantic_classes.items():
                     if obj_name not in obj_classes.keys():
                         obj_class = sly.ObjClass(obj_name, sly.Bitmap)
@@ -232,6 +240,7 @@ def import_davis(api: sly.Api, task_id, context, state, app_logger):
                 video = cv2.VideoWriter(video_path, cv2.VideoWriter_fourcc(*'MP4V'), frame_rate, img_size)
 
                 frames = []
+                really_video_classes_ids = []
                 for idx in range(len(images)):
                     image_name = str(idx).zfill(5) + images_ext
                     curr_im_path = os.path.join(curr_imgs_path, image_name)
@@ -261,6 +270,8 @@ def import_davis(api: sly.Api, task_id, context, state, app_logger):
                     figures = []
                     for ann_obj_idx in range(1, len(ann_objects)):
                         obj_id = ann_objects[ann_obj_idx][1]
+                        if obj_id not in really_video_classes_ids:
+                            really_video_classes_ids.append(obj_id)
                         mask = mask_all == obj_id
                         if len(np.unique(mask)) == 1:
                             continue
@@ -279,6 +290,14 @@ def import_davis(api: sly.Api, task_id, context, state, app_logger):
 
                     video.write(curr_im)
                     progress.iter_done_report()
+                #========================================================================================
+                keys_to_del = []
+                for key in video_objects.keys():
+                    if int(key) not in really_video_classes_ids:
+                        keys_to_del.append(key)
+                for k in keys_to_del:
+                    video_objects.pop(k)
+                # ========================================================================================
                 video.release()
 
                 file_info = api.video.upload_paths(new_dataset.id, [imgs_dir], [video_path])
