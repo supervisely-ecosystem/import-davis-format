@@ -71,8 +71,10 @@ if davis_year == '2017':
         for ds in datasets:
             if ds == 'TrainVal' and davis_type == 'Unsupervised':
                 LINKS.extend([train_val_480_url, anns_480_url])
+                anns_subdir = 'Annotations_unsupervised'
             if ds == 'TrainVal' and davis_type == 'Semi-supervised':
                 LINKS.extend([train_val_480_url_semi, anns_480_url])
+                anns_subdir = 'Annotations'
             if ds == 'TestDev' and davis_type == 'Unsupervised':
                 LINKS.append(test_dev_480_url)
             if ds == 'TestChallenge' and davis_type == 'Unsupervised':
@@ -85,8 +87,10 @@ if davis_year == '2017':
         for ds in datasets:
             if ds == 'TrainVal' and davis_type == 'Unsupervised':
                 LINKS.extend([train_val_full_url, anns_full_url])
+                anns_subdir = 'Annotations_unsupervised'
             if ds == 'TrainVal' and davis_type == 'Semi-supervised':
                 LINKS.extend([train_val_full_url_semi, anns_full_url])
+                anns_subdir = 'Annotations'
             if ds == 'TestDev' and davis_type == 'Unsupervised':
                 LINKS.append(test_dev_full_url)
             if ds == 'TestChallenge' and davis_type == 'Unsupervised':
@@ -96,7 +100,11 @@ if davis_year == '2017':
             if ds == 'TestChallenge' and davis_type == 'Semi-supervised':
                 LINKS.append(test_chall_full_url_2017)
 else:
-    pass
+    LINKS.append(train_val_2016_url)
+    if resolution == '480p':
+        LINKS.append(anns_480_url)
+    else:
+        LINKS.append(anns_full_url)
 
 
 def check_input_data(working_dir):
@@ -176,7 +184,7 @@ def import_davis(api: sly.Api, task_id, context, state, app_logger):
     for working_dir in dirs_for_prepare:
         if trainval in working_dir:
             check_input_data(working_dir)
-            anns_dir = os.path.join(working_dir, 'Annotations_unsupervised', resolution)
+            anns_dir = os.path.join(working_dir, anns_subdir, resolution)
             imgs_path = os.path.join(working_dir, 'JPEGImages', resolution)
             train_val_path = os.path.join(working_dir, 'ImageSets/2017')
             semantics_path = os.path.join(working_dir, 'davis_semantics.json')
