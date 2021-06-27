@@ -32,6 +32,8 @@ project_name = 'davis2017'
 work_dir = 'davis_data'
 trainval = 'trainval'
 trainval_2016 = 'trainval2016'
+resolution_480 = '480p'
+resolution_1080 = '1080p'
 
 train_val_480_url = 'https://data.vision.ee.ethz.ch/csergi/share/davis/DAVIS-2017-Unsupervised-trainval-480p.zip'
 train_val_full_url = 'https://data.vision.ee.ethz.ch/csergi/share/davis/DAVIS-2017-Unsupervised-trainval-Full-Resolution.zip'
@@ -68,7 +70,7 @@ else:
 LINKS = []
 if davis_year == '2017':
     sets_subdir = 'ImageSets/2017'
-    if resolution == '480p':
+    if resolution == resolution_480:
         for ds in datasets:
             if ds == 'TrainVal' and davis_type == 'Unsupervised':
                 LINKS.extend([train_val_480_url, anns_480_url])
@@ -103,11 +105,12 @@ if davis_year == '2017':
 else:
     LINKS.append(train_val_2016_url)
     anns_subdir = 'Annotations'
-    sets_subdir = os.path.join('ImageSets', resolution)
-    if resolution == '480p':
+    if resolution == resolution_480:
         LINKS.append(anns_480_url)
+        sets_subdir = os.path.join('ImageSets', resolution)
     else:
         LINKS.append(anns_full_url)
+        sets_subdir = os.path.join('ImageSets', resolution_1080)
 
 
 def check_input_data(working_dir):
