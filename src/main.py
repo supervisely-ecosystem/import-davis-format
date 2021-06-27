@@ -28,7 +28,6 @@ NECESSARY_ITEMS = ['JPEGImages', 'ImageSets', 'davis_semantics.json']
 images_ext = '.jpg'
 anns_ext = '.png'
 first_image_name = '00000.jpg'
-project_name = 'davis2017'
 work_dir = 'davis_data'
 trainval = 'trainval'
 trainval_2016 = 'trainval2016'
@@ -58,6 +57,8 @@ resolution = os.environ['modal.state.resolution']
 datasets = os.environ['modal.state.currDataset']
 davis_year = os.environ['modal.state.Davis']
 davis_type = os.environ['modal.state.type']
+
+project_name = '{}_{}_{}'.format(davis_year, resolution, davis_type)
 
 if len(datasets) != 2:
     datasets = os.environ['modal.state.currDataset']
