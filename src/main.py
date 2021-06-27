@@ -153,7 +153,7 @@ def import_davis(api: sly.Api, task_id, context, state, app_logger):
         download(curr_url, archive_path, my_app.cache, progress_cb)
 
     dirs_for_prepare = []
-    for curr_arch_name in ['DAVIS-data.zip', 'DAVIS-2017_semantics-480p.zip']:#os.listdir(work_dir_path):
+    for curr_arch_name in os.listdir(work_dir_path):
         curr_arch_path = os.path.join(work_dir_path, curr_arch_name)
         if sly.io.fs.file_exists(curr_arch_path):
             if davis_year == '2016':
