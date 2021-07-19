@@ -28,12 +28,12 @@
             <sly-field title="Dataset:" style="margin: 10px 10px 0 0;">
             <el-checkbox-group v-model="state.currDataset" >
                 <div>
-                <el-checkbox :disabled="state.davisYear == 2016" label="TrainVal"></el-checkbox>
+                <el-checkbox :disabled="state.davisYear == 2016" label="TrainVal" style="margin: 5px 10px 0 0"></el-checkbox>
                 </div>
                 <div>
-                <el-checkbox :disabled="state.davisYear == 2016" label="TestDev"></el-checkbox>
+                <el-checkbox :disabled="state.davisYear == 2016" label="TestDev" style="margin: 5px 10px 0 0"></el-checkbox>
                 </div>
-                <el-checkbox :disabled="state.davisYear == 2016" label="TestChallenge"></el-checkbox>
+                <el-checkbox :disabled="state.davisYear == 2016" label="TestChallenge" style="margin: 5px 10px 0 0"></el-checkbox>
             </el-checkbox-group>
             </sly-field>
 
