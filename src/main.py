@@ -58,8 +58,6 @@ datasets = os.environ['modal.state.currDataset']
 davis_year = os.environ['modal.state.davisYear']
 davis_type = os.environ['modal.state.type']
 
-project_name = '{}_{}_{}'.format(davis_year, resolution, davis_type)
-
 if len(datasets) != 2:
     datasets = os.environ['modal.state.currDataset']
     datasets = datasets[1:-1].replace('\'', '')
@@ -70,6 +68,7 @@ else:
 
 LINKS = []
 if davis_year == '2017':
+    project_name = '{}_{}_{}'.format(davis_year, resolution, davis_type)
     sets_subdir = 'ImageSets/2017'
     if resolution == resolution_480:
         for ds in datasets:
@@ -104,6 +103,7 @@ if davis_year == '2017':
             if ds == 'TestChallenge' and davis_type == 'Semi-supervised':
                 LINKS.append(test_chall_full_url_2017)
 else:
+    project_name = '{}_{}'.format(davis_year, resolution)
     LINKS.append(train_val_2016_url)
     anns_subdir = 'Annotations'
     if resolution == resolution_480:
