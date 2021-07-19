@@ -1,5 +1,6 @@
 <div align="center" markdown>
-<img src="https://i.imgur.com/WJcTcJc.png" width="1900px"/>
+<img src="https://i.imgur.com/WONbc3V.png" width="1900px"/>
+
 
 
 
@@ -23,19 +24,27 @@
 
 ## Overview
 
-App downloads `DAVIS` data from official `DAVIS` site([click here](https://davischallenge.org/davis2017/code.html#unsupervised)). After extraction data is converted to [Supervisely](https://app.supervise.ly) format. 
+The standalone DAVIS initiative is in maintenance mode: it won't be hosting any more and will no longer update. The DAVIS dataset is now part of the [RobMOTS Challenge](https://eval.vision.rwth-aachen.de/rvsu-workshop21/?page_id=110).
+
+- [DAVIS 2016:](https://davischallenge.org/davis2016/code.html) In each video sequence a single instance is annotated.
+- [DAVIS 2017 Semi-supervised:](https://davischallenge.org/davis2017/code.html#semisupervised) In each video sequence multiple instances are annotated.
+- [DAVIS 2017 Unsupervised:](https://davischallenge.org/davis2017/code.html#unsupervised) In each video sequence multiple instances are annotated.
+
+Semi-supervised and Unsupervised refer to the level of human interaction at test time, not during the training phase. In Semi-supervised, better called human guided, the segmentation mask for the objects of interest is provided in the first frame. In Unsupervised, better called human non-guided, no human input is provided.
+
+App downloads data from official [DAVIS](https://davischallenge.org/). After extraction data is converted to [Supervisely](https://app.supervise.ly) format. 
 
 ## How To Run 
 
-**Step 1**: Add app to your team from [Ecosystem](https://ecosystem.supervise.ly/apps/import-cityscapes) if it is not there.
+**Step 1**: Add app to your team from [Ecosystem](https://ecosystem.supervise.ly/apps/import-davis-format) if it is not there.
 
 **Step 2**:  Open `Plugins & Apps` -> `Import DAVIS` -> `Run` 
 
-<img src="https://i.imgur.com/pxFNPPh.png"/>
+<img src="https://i.imgur.com/688yito.png"/>
 
 **Step 3**: Select the resolution and type of import of datasets.
 
-<img src="https://i.imgur.com/vBW90az.png" width="800px"/>
+<img src="https://i.imgur.com/EFxO33V.png" width="800px"/>
 
 Press `RUN`button. Now the window with program running logs will aappear. You don't have to wait for the program to finish execution(you can safely close the window).
 
