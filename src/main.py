@@ -55,7 +55,7 @@ train_val_2016_url = 'https://graphics.ethz.ch/Downloads/Data/Davis/DAVIS-data.z
 
 resolution = os.environ['modal.state.resolution']
 datasets = os.environ['modal.state.currDataset']
-davis_year = os.environ['modal.state.Davis']
+davis_year = os.environ['modal.state.davisYear']
 davis_type = os.environ['modal.state.type']
 
 project_name = '{}_{}_{}'.format(davis_year, resolution, davis_type)
