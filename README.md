@@ -1,5 +1,6 @@
 <div align="center" markdown>
-<img src="https://i.imgur.com/WONbc3V.png" width="1900px"/>
+<img src="https://i.imgur.com/DTYFKGA.png"/>
+
 
 
 
@@ -44,7 +45,7 @@ App downloads data from official [DAVIS](https://davischallenge.org/). After ext
 
 **Step 3**: Select the resolution and type of import of datasets.
 
-<img src="https://i.imgur.com/EFxO33V.png" width="800px"/>
+<img src="https://i.imgur.com/oXaR7K5.png" width="800px"/>
 
 Press `RUN`button. Now the window with program running logs will aappear. You don't have to wait for the program to finish execution(you can safely close the window).
 
