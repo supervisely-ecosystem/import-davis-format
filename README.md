@@ -53,6 +53,6 @@ Press `RUN`button. Now the window with program running logs will aappear. You do
 
 ## How to use
 
-Resulting project will be placed to your current `Workspace` . Videos in datasets will have tags (`train`, `val`, `test`) corresponding to the input data.
+Resulting project will be placed to your current `Workspace`. Videos in datasets will have tags (`train`, `val`, `test`) corresponding to the input data.
 
 <img src="https://i.imgur.com/mMj35R2.png"/>
