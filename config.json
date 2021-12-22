@@ -9,7 +9,7 @@
   "main_script": "src/main.py",
   "modal_template": "src/modal.html",
   "modal_template_state": {"davisYear": "2017", "resolution": "480p", "type": "Unsupervised", "currDataset":  ["TrainVal"]},
-  "task_location": "application_sessions",
+  "task_location": "workspace_tasks",
   "isolate": true,
   "headless": true,
   "icon": "https://i.imgur.com/tdrAo8j.png",
