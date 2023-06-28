@@ -1,5 +1,5 @@
 <div align="center" markdown>
-<img src="https://i.imgur.com/DTYFKGA.png"/>
+<img src="media/poster.png"/>
 
 
 
@@ -40,11 +40,11 @@ App downloads data from official [DAVIS](https://davischallenge.org/). After ext
 
 **Step 2**:  Open `Plugins & Apps` -> `Import DAVIS` -> `Run` 
 
-<img src="https://i.imgur.com/688yito.png"/>
+<img src="media/htr2.png"/>
 
 **Step 3**: Select the resolution and type of import of datasets.
 
-<img src="https://i.imgur.com/oXaR7K5.png" width="800px"/>
+<img src="media/htr3.png" width="800px"/>
 
 Press `RUN`button. Now the window with program running logs will aappear. You don't have to wait for the program to finish execution(you can safely close the window).
 
@@ -54,4 +54,4 @@ Press `RUN`button. Now the window with program running logs will aappear. You do
 
 Resulting project will be placed to your current `Workspace`. Videos in datasets will have tags (`train`, `val`, `test`) corresponding to the input data.
 
-<img src="https://i.imgur.com/mMj35R2.png"/>
+<img src="media/htu.png"/>
