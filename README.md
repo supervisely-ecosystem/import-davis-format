@@ -15,10 +15,10 @@
 </p>
 
 
-[![](https://img.shields.io/badge/slack-chat-green.svg?logo=slack)](https://supervise.ly/slack)
+[![](https://img.shields.io/badge/slack-chat-green.svg?logo=slack)](https://supervisely.com/slack)
 ![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/supervisely-ecosystem/import-davis-format)
-[![views](https://app.supervise.ly/img/badges/views/supervisely-ecosystem/import-davis-format.png)](https://supervise.ly)
-[![runs](https://app.supervise.ly/img/badges/runs/supervisely-ecosystem/import-davis-format.png)](https://supervise.ly)
+[![views](https://app.supervisely.com/img/badges/views/supervisely-ecosystem/import-davis-format.png)](https://supervisely.com)
+[![runs](https://app.supervisely.com/img/badges/runs/supervisely-ecosystem/import-davis-format.png)](https://supervisely.com)
 
 </div>
 
@@ -32,11 +32,11 @@ The standalone DAVIS initiative is in maintenance mode: it won't be hosting any 
 
 Semi-supervised and Unsupervised refer to the level of human interaction at test time, not during the training phase. In Semi-supervised, better called human guided, the segmentation mask for the objects of interest is provided in the first frame. In Unsupervised, better called human non-guided, no human input is provided.
 
-App downloads data from official [DAVIS](https://davischallenge.org/). After extraction data is converted to [Supervisely](https://app.supervise.ly) format. 
+App downloads data from official [DAVIS](https://davischallenge.org/). After extraction data is converted to [Supervisely](https://app.supervisely.com) format. 
 
 ## How To Run 
 
-**Step 1**: Add app to your team from [Ecosystem](https://ecosystem.supervise.ly/apps/import-davis-format) if it is not there.
+**Step 1**: Add app to your team from [Ecosystem](https://ecosystem.supervisely.com/apps/import-davis-format) if it is not there.
 
 **Step 2**:  Open `Plugins & Apps` -> `Import DAVIS` -> `Run` 
 
